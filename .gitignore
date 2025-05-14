@@ -1,0 +1,115 @@
+# C++ 관련 빌드 파일들
+# Windows
+*.exe
+*.out
+*.app
+*.dll
+*.obj
+*.o
+*.lo
+*.la
+*.a
+*.lib
+*.so
+*.dylib
+*.pch
+*.pdb
+*.idb
+*.ilk
+*.exp
+
+# CMake, Makefile 등 빌드 시스템에서 생성되는 파일들
+CMakeCache.txt
+CMakeFiles/
+Makefile
+Makefile.in
+Makefile.am
+build/
+Debug/
+Release/
+*.log
+
+# Visual Studio 관련 파일들
+.vs/
+.vscode/
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/c_cpp_properties.json
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sdf
+*.dbmdl
+*.opendb
+
+# Qt Creator 관련 파일들
+*.pro.user
+*.qmake.stash
+*.qmake.cache
+*.pro.user.*
+
+# Xcode 관련 파일들
+*.xcuserdata/
+*.xcodeproj/*
+*.xcworkspace/
+
+# 기타 편집기 설정 파일들
+*.swp
+*.swo
+*~
+.idea/
+
+# 종속성 관리 파일들
+*.cmake
+
+# 임시 파일들
+Thumbs.db
+.DS_Store
+
+# Git LFS
+*.tif
+
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Visual Studio 관련 파일들
+# .vcxproj 파일 포함, 다른 Visual Studio 관련 파일 제외
+!*.vcxproj
+!*.vcxproj.filters
+!*.sln
+
+# C# obj 폴더 무시
+obj/
