@@ -7,26 +7,31 @@
 #include <future>
 #include "ThreadManager.h"
 #include "Socket.h"
+#include "Listener.h"
 
 
 #include "Memory.h"
 
 int main()
 {
-	// 1. 윈속 초기화
-	GSocketManager->SocketStart();
+	// 난 NetAddr 클래스 안 만들어서 대신 SOCKADDR 하나 생성했음
+	SOCKADDR_IN listenSock;
+	listenSock.sin_family = AF_INET;
+	listenSock.sin_addr.s_addr = htonl(0x7F000001); // 127.0.0.1
+	listenSock.sin_port = ::htons(7777);
 
-	// 2. 리스너 소켓 생성 및 바인딩
-	SOCKET socket = GSocketManager->CreateSocket();
-	GSocketManager->BindSocketAnyAddress(socket, 7777);
+	Listener listener;
+	listener.StartAccept(listenSock);
 
-	// 3. 클라이언트 소켓 생성
-	SOCKET clientSocket = accept(socket, nullptr, nullptr);
-
-	cout << "Client Connected!" << endl;
-	while (true)
+	for (int32 i = 0; i < 4; i++) // 코어개수 ~ (코어개수 * 1.5) 가 적당
 	{
-
+		GThreadManager->Launch([=]()
+			{
+				while (true)
+				{
+					GIocpCore.Dispatch();
+				}
+			});
 	}
 
 	GThreadManager->Join();
