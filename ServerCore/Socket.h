@@ -12,7 +12,7 @@ public:
 	void SocketStart();
 
 	SOCKET CreateSocket();
-	bool BindSocket(SOCKET socket);
+	bool BindSocket(SOCKET socket, SOCKADDR_IN sockaddr);
 	bool BindSocketAnyAddress(SOCKET socket, uint16 port);
 	bool BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn);
 

@@ -4,7 +4,9 @@
 
 Socket::Socket()
 {
-	// 0. 확장 포인터 바인딩 (런타임에)
+	// 0. 윈속 초기화
+	SocketStart();
+	// 1. 확장 포인터 바인딩 (런타임에)
 	SOCKET dummySocket = CreateSocket();
 	BindWindowsFunction(dummySocket, WSAID_CONNECTEX, reinterpret_cast<LPVOID*>(&ConnectEx));
 	BindWindowsFunction(dummySocket, WSAID_DISCONNECTEX, reinterpret_cast<LPVOID*>(&DisconnectEx));
@@ -14,7 +16,7 @@ Socket::Socket()
 
 void Socket::SocketStart()
 {
-	// 1. 윈속 초기화
+	// 0. 윈속 초기화
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), OUT & wsaData);
 }
@@ -28,14 +30,20 @@ SOCKET Socket::CreateSocket()
 {
 	// 기존에 socket() 함수로 SOCKET을 리턴했던 반면,
 	// 윈도우 전용확장 함수인 WSASocket()으로 대체됨 -> 세부 옵션 설정 가능
-	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	// return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+
+	SOCKET sock = ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+	if (sock == INVALID_SOCKET)
+	{
+		int errCode = WSAGetLastError();
+		std::cout << "[CreateSocket] 실패: " << errCode << std::endl;
+	}
+	return sock;
 }
 
-// 지금은 안 쓰니까 냅둬보자
-bool Socket::BindSocket(SOCKET socket)
+bool Socket::BindSocket(SOCKET socket, SOCKADDR_IN sockaddr)
 {
-	//return SOCKET_ERROR != ::bind(socket, reinterpret_cast<const SOCKADDR*>(&netAddr.GetSockAddr()), sizeof(SOCKADDR_IN));
-	return false;
+	return SOCKET_ERROR != ::bind(socket, reinterpret_cast<const SOCKADDR*>(&sockaddr), sizeof(sockaddr));
 }
 
 bool Socket::BindSocketAnyAddress(SOCKET socket, uint16 port)
