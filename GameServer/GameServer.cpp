@@ -6,11 +6,14 @@
 #include <windows.h>
 #include <future>
 #include "ThreadManager.h"
-#include "Socket.h"
-#include "Listener.h"
 
+#include "Service.h"
+#include "Session.h"
 
-#include "Memory.h"
+class GameSession : public Session
+{
+
+};
 
 int main()
 {
@@ -20,8 +23,17 @@ int main()
 	listenSock.sin_addr.s_addr = htonl(0x7F000001); // 127.0.0.1
 	listenSock.sin_port = ::htons(7777);
 
-	Listener listener;
-	listener.StartAccept(listenSock);
+	//Listener listener;
+	//listener.StartAccept(listenSock);
+
+	ServerServiceRef service = make_shared<ServerService>(
+		listenSock,
+		make_shared<IocpCore>(),
+		[]() { return make_shared<GameSession>();  },
+		100
+	);
+
+	service->Start();
 
 	for (int32 i = 0; i < 4; i++) // 코어개수 ~ (코어개수 * 1.5) 가 적당
 	{

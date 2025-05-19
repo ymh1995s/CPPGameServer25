@@ -3,6 +3,7 @@
 #include "Socket.h"
 #include "Session.h"
 #include "IocpCore.h"
+#include "Service.h"
 
 /*--------------
 	Listener
@@ -21,13 +22,19 @@ Listener::~Listener()
 }
 
 // 클라이언트 연결 수락 시작
-bool Listener::StartAccept(SOCKADDR_IN sockaddr)
+//bool Listener::StartAccept(SOCKADDR_IN sockaddr)
+bool Listener::StartAccept(ServerServiceRef service)
 {
 	_socket = GSocketManager->CreateSocket();
 	if (_socket == INVALID_SOCKET)
 		return false;
 
-	GIocpCore.Register(this);
+	_service = service;
+	if (_service == nullptr)
+		return false;
+
+	//GIocpCore.Register(this);
+	GIocpCore.Register(shared_from_this());
 
 	SetSockOpt(_socket, SOL_SOCKET, SO_REUSEADDR, true); // ReUseAddress
 
@@ -39,7 +46,8 @@ bool Listener::StartAccept(SOCKADDR_IN sockaddr)
 
 
 	// 네트워크 주소 바인딩
-	GSocketManager->BindSocket(_socket, sockaddr);
+	//GSocketManager->BindSocket(_socket,sockaddr);
+	GSocketManager->BindSocket(_socket, _service->GetNetAddress());
 
 	// 소켓을 수신 대기 상태로 설정
 	GSocketManager->Listen(_socket);
@@ -49,6 +57,7 @@ bool Listener::StartAccept(SOCKADDR_IN sockaddr)
 	for (int32 i = 0; i < acceptCount; i++)
 	{
 		AcceptEvent* acceptEvent = new AcceptEvent();
+		acceptEvent->owner = shared_from_this(); // iocpEvent의 주인이 누군지 지정(자기 자신)
 		_acceptEvents.push_back(acceptEvent); // 이벤트 리스트에 추가 
 		RegisterAccept(acceptEvent); // 수락 등록
 	}
@@ -78,10 +87,13 @@ void Listener::Dispatch(IocpEvent* iocpEvent, int32 numOfBytes)
 // 새로운 세션 생성 (IOCP에 등록)
 void Listener::RegisterAccept(AcceptEvent* acceptEvent)
 {
-	Session* session = new Session();
+	//Session* session = new Session();
+	//SessionRef session = std::make_shared<Session>();
+	SessionRef session = _service->CreateSession(); // Register IOCP
 
 	acceptEvent->Init();
-	acceptEvent->SetSession(session);
+	//acceptEvent->SetSession(session);
+	acceptEvent->session = session;
 	DWORD bytesReceived = 0;
 	// https://learn.microsoft.com/ko-kr/windows/win32/api/_winsock/
 	// ★★★ 실제 연결이 되는 부분 AcceptEx()
@@ -104,7 +116,8 @@ void Listener::RegisterAccept(AcceptEvent* acceptEvent)
 // 실제 연결이 확정되고 세션을 등록하는 부분
 void Listener::ProcessAccept(AcceptEvent* acceptEvent)
 {
-	Session* session = acceptEvent->GetSession();
+	//Session* session = acceptEvent->GetSession();
+	SessionRef session = acceptEvent->session;
 
 	// 세션의 소켓 업데이트
 	// 리스너의 소켓이랑 옵션을 똑같이 맞춰줌(SetUpdateAcceptSocket())
