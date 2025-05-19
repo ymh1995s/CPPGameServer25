@@ -22,10 +22,14 @@ IocpCore::~IocpCore()
 }
 
 // IOCP 객체(소켓 등)를 IOCP에 등록
-bool IocpCore::Register(IocpObject* iocpObject)
+//bool IocpCore::Register(IocpObject* iocpObject)
+bool IocpCore::Register(IocpObjectRef iocpObject)
 {
-	return ::CreateIoCompletionPort(iocpObject->GetHandle(), _iocpHandle, /*key*/reinterpret_cast<ULONG_PTR>(iocpObject), 0);
+	//return ::CreateIoCompletionPort(iocpObject->GetHandle(), _iocpHandle, /*key*/reinterpret_cast<ULONG_PTR>(iocpObject), 0);
 	// key는 고유한 식별 값이고, 고유 값을 넣기 위해 해당 객체의 포인터를 넣음
+
+	// 이젠 키값 대신 share_ptr로 관리할 것이기 떄문에 키 관련은 0또는 더미로 밀어준다.
+	return ::CreateIoCompletionPort(iocpObject->GetHandle(), _iocpHandle, /*key*/0, 0);
 }
 
 /*
@@ -39,7 +43,8 @@ bool IocpCore::Register(IocpObject* iocpObject)
 bool IocpCore::Dispatch(uint32 timeoutMs)
 {
 	DWORD numOfBytes = 0;
-	IocpObject* iocpObject = nullptr;
+	//IocpObject* iocpObject = nullptr;
+	ULONG_PTR key = 0;
 	IocpEvent* iocpEvent = nullptr;
 
 	// 무한 대기 하다 완료된 IO 이벤트 가져오기
@@ -48,9 +53,11 @@ bool IocpCore::Dispatch(uint32 timeoutMs)
 	// iocpObject (3번째 파라미터) : 등록할 때 넣은 키 값
 	// iocpEvent (4번째 파라미터) : OVERLAPPED 구조체 포인터 => IocpEvent는 OVERLAPPED 구조체를 상속 받음
 	if (::GetQueuedCompletionStatus(_iocpHandle, OUT & numOfBytes,
-		OUT reinterpret_cast<PULONG_PTR>(&iocpObject),
+		//OUT reinterpret_cast<PULONG_PTR>(&iocpObject),
+		OUT & key,
 		OUT reinterpret_cast<LPOVERLAPPED*>(&iocpEvent), timeoutMs))
 	{
+		IocpObjectRef iocpObject = iocpEvent->owner; // 여기서 iocpEvent의 주인을 가져옴 
 		iocpObject->Dispatch(iocpEvent, numOfBytes);
 	}
 	else
@@ -62,6 +69,7 @@ bool IocpCore::Dispatch(uint32 timeoutMs)
 			return false;
 		default:
 			// TODO : 로그 찍기
+			IocpObjectRef iocpObject = iocpEvent->owner;
 			iocpObject->Dispatch(iocpEvent, numOfBytes);
 			break;
 		}
@@ -73,7 +81,7 @@ bool IocpCore::Dispatch(uint32 timeoutMs)
 /*--------------
 	IocpEvent
 ---------------*/
-IocpEvent::IocpEvent(EventType type) : _type(type)
+IocpEvent::IocpEvent(EventType type) : eventType(type)
 {
 	Init(); // OVERLAPPED 구조체 초기화
 }

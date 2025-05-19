@@ -5,7 +5,9 @@
 -----------------*/
 
 // 모든 IOCP 객체들은 이 클래스를 상속받아야 함 
-class IocpObject
+// Listener.cpp에서 쉐어드 ptr을 쓰기 위한 상속 추가
+// 자기 자신에 대한 스마트포인터를 사용 가능하게 함 
+class IocpObject : public enable_shared_from_this<IocpObject>
 {
 public:
 	// IOCP에 등록할 때 사용하는 소켓 핸들 반환 (예: 리스너 소켓 등)
@@ -28,7 +30,8 @@ public:
 	HANDLE		GetHandle() { return _iocpHandle; }
 
 	// IOCP 객체 등록 (소켓 또는 파일 핸들 등)
-	bool		Register(class IocpObject* iocpObject);
+	//bool		Register(class IocpObject* iocpObject);
+	bool		Register(IocpObjectRef iocpObject);
 	// IOCP 이벤트를 가져와 처리 (timeoutMs: 최대 대기 시간)
 	bool		Dispatch(uint32 timeoutMs = INFINITE);
 
@@ -66,10 +69,11 @@ public:
 	// 상속받았던 OVERLAPPED 메모리가 다른 정보로 채워질 수 있기 때문에 
 
 	void		Init();
-	EventType	GetType() { return _type; }
+	EventType	GetType() { return eventType; }
 
-protected:
-	EventType	_type; // 이벤트 타입 (예: Connect, Disconnect, 등)
+public:
+	EventType	eventType; // 이벤트 타입 (예: Connect, Disconnect, 등)
+	IocpObjectRef	owner; // REFCount 위해 주인이 누구인지 기억용
 };
 
 /*----------------
@@ -93,11 +97,12 @@ public:
 	// 기본 생성자는 IocpEvent(EventType::Accept) 호출
 	AcceptEvent() : IocpEvent(EventType::Accept) {}
 
-	void		SetSession(Session* session) { _session = session; }
-	Session* GetSession() { return _session; }
+	//void		SetSession(Session* session) { session = session; }
+	//Session* GetSession() { return session; }
 
-private:
-	Session* _session = nullptr; // 연결된 세션(클라이언트)을 나타내는 참조
+public:
+	//Session* _session = nullptr; // 연결된 세션(클라이언트)을 나타내는 참조
+	SessionRef session = nullptr; // 연결된 세션(클라이언트)을 나타내는 참조
 };
 
 /*----------------

@@ -15,7 +15,8 @@ public:
 
 public:
 	/* 외부에서 사용 */
-	bool StartAccept(SOCKADDR_IN sockaddr);
+	//bool StartAccept(SOCKADDR_IN sockaddr);
+	bool StartAccept(ServerServiceRef service);
 	void CloseSocket();
 
 public:
@@ -31,4 +32,5 @@ private:
 protected:
 	SOCKET _socket = INVALID_SOCKET;
 	vector<AcceptEvent*> _acceptEvents;
+	ServerServiceRef _service;
 };
