@@ -16,6 +16,9 @@
     <Filter Include="Memory">
       <UniqueIdentifier>{903143c9-12f7-436d-8004-490b4f0d31bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Buffer">
+      <UniqueIdentifier>{8a33f12f-24de-4b35-b4c0-a31b5202134f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CorePch.h">
@@ -54,6 +57,12 @@
     <ClInclude Include="Service.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="RecvBuffer.h">
+      <Filter>Buffer</Filter>
+    </ClInclude>
+    <ClInclude Include="SendBuffer.h">
+      <Filter>Buffer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CorePch.cpp">
@@ -85,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="Service.cpp">
       <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="RecvBuffer.cpp">
+      <Filter>Buffer</Filter>
+    </ClCompile>
+    <ClCompile Include="SendBuffer.cpp">
+      <Filter>Buffer</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
