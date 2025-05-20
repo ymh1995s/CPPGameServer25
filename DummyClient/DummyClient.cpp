@@ -2,22 +2,25 @@
 #include "ThreadManager.h"
 #include "Service.h"
 #include "Session.h"
+#include "SendBuffer.h"
 
-char sendBuffer[] = "Hello World";
+char sendData[] = "Hello World";
 
 class ServerSession : public Session
 {
 public:
 	~ServerSession()
 	{
-		// Ref Count 확인을 위한 주기적인 소멸 테스트
 		cout << "~ServerSession" << endl;
 	}
 
 	virtual void OnConnected() override
 	{
 		cout << "Connected To Server" << endl;
-		Send((BYTE*)sendBuffer, sizeof(sendBuffer));
+
+		SendBufferRef sendBuffer = make_shared<SendBuffer>(4096);
+		sendBuffer->CopyData(sendData, sizeof(sendData));
+		Send(sendBuffer);
 	}
 
 	virtual int32 OnRecv(BYTE* buffer, int32 len) override
@@ -26,7 +29,10 @@ public:
 
 		this_thread::sleep_for(1s);
 
-		Send((BYTE*)sendBuffer, sizeof(sendBuffer));
+		SendBufferRef sendBuffer = make_shared<SendBuffer>(4096);
+		sendBuffer->CopyData(sendData, sizeof(sendData));
+		Send(sendBuffer);
+
 		return len;
 	}
 
@@ -40,7 +46,6 @@ public:
 		cout << "Disconnected" << endl;
 	}
 };
-
 int main()
 {
 	this_thread::sleep_for(1s);

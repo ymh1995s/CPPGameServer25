@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "IocpCore.h"
+#include "RecvBuffer.h"
 
 /*--------------
 	Session
@@ -10,13 +11,19 @@ class Session : public IocpObject
 	friend class IocpCore;
 	friend class Service;
 
+	enum
+	{
+		BUFFER_SIZE = 0x10000, // 64KB
+	};
+
 public:
 	Session();
 	virtual ~Session();
 
 public:
 	/* 외부에서 사용 */
-	void				Send(BYTE* buffer, int32 len);
+	//void				Send(BYTE* buffer, int32 len);
+	void				Send(SendBufferRef sendBuffer);
 	bool				Connect();
 	void				Disconnect(const WCHAR* cause);
 
@@ -41,12 +48,14 @@ private:
 	bool				RegisterConnect();
 	bool				RegisterDisconnect();
 	void				RegisterRecv();
-	void				RegisterSend(SendEvent* sendEvent);
+	//void				RegisterSend(SendEvent* sendEvent);
+	void				RegisterSend();
 
 	void				ProcessConnect();
 	void				ProcessDisconnect();
 	void				ProcessRecv(int32 numOfBytes);
-	void				ProcessSend(SendEvent* sendEvent, int32 numOfBytes);
+	//void				ProcessSend(SendEvent* sendEvent, int32 numOfBytes);
+	void				ProcessSend(int32 numOfBytes);
 
 	void				HandleError(int32 errorCode);
 
@@ -56,10 +65,6 @@ protected:
 	virtual int32		OnRecv(BYTE* buffer, int32 len) { return len; }
 	virtual void		OnSend(int32 len) {}
 	virtual void		OnDisconnected() {}
-
-public:
-	// TEMP
-	BYTE _recvBuffer[1000];
 
 private:
 	weak_ptr<Service>	_service;
@@ -71,12 +76,16 @@ private:
 	USE_LOCK;
 
 	/* 수신 관련 */
+	RecvBuffer			_recvBuffer;
 
 	/* 송신 관련 */
+	queue<SendBufferRef>	_sendQueue;
+	Atomic<bool>			_sendRegistered = false;
 
 private:
 	/* IocpEvent 재사용 */
 	ConnectEvent		_connectEvent;
 	DisconnectEvent		_disconnectEvent;
 	RecvEvent			_recvEvent; // 한 번만 선언하고 재사용 (낚시대)
+	SendEvent			_sendEvent; // 한 번만 선언하고 재사용
 };

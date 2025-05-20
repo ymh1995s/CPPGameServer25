@@ -101,7 +101,7 @@ void Listener::RegisterAccept(AcceptEvent* acceptEvent)
 	//        LPOVERLAPPED 구조체인 acceptEvent에 완료 결과가 담긴다.
 	// ★★★ acceptEvent는 IOCP 큐에 담기고, GetQueuedCompletionStatus()가 꺼내서 워커 스레드가 처리.
 	if (false == GSocketManager->AcceptEx(_socket, session->GetSocket(),
-		session->_recvBuffer, 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16,
+		session->_recvBuffer.WritePos(), 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16,
 		OUT & bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent)))
 	{
 		const int32 errorCode = ::WSAGetLastError();
@@ -139,11 +139,6 @@ void Listener::ProcessAccept(AcceptEvent* acceptEvent)
 
 	// 세션의 네트워크 주소 설정
 	session->SetNetAddress(sockAddress);
-
-	cout << "Client Connected!" << endl;
-
-	// TODO 세션 매니저에 등록
-
-	// 새로운 연결을 위한 AcceptEvent 재등록
+	session->ProcessConnect();
 	RegisterAccept(acceptEvent);
 }
