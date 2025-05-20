@@ -14,7 +14,7 @@ Service::Service(ServiceType type, SOCKADDR_IN address, IocpCoreRef core,
 	: _type(type), _netAddress(address), _iocpCore(core),
 	_sessionFactory(factory), _maxSessionCount(maxSessionCount)
 {
-
+	cout << "test";
 }
 
 Service::~Service()
@@ -29,6 +29,7 @@ void Service::CloseService()
 SessionRef Service::CreateSession()
 {
 	SessionRef session = _sessionFactory();
+	session->SetService(shared_from_this());
 
 	if (_iocpCore->Register(session) == false)
 		return nullptr;
@@ -60,9 +61,20 @@ ClientService::ClientService(SOCKADDR_IN targetAddress, IocpCoreRef core,
 {
 }
 
+// Service.cpp
 bool ClientService::Start()
 {
-	// TODO
+	if (CanStart() == false)
+		return false;
+
+	const int32 sessionCount = GetMaxSessionCount();
+	for (int32 i = 0; i < sessionCount; i++)
+	{
+		SessionRef session = CreateSession();
+		if (session->Connect() == false)
+			return false;
+	}
+
 	return true;
 }
 
@@ -70,6 +82,8 @@ ServerService::ServerService(SOCKADDR_IN address, IocpCoreRef core,
 	SessionFactory factory, int32 maxSessionCount)
 	: Service(ServiceType::Server, address, core, factory, maxSessionCount)
 {
+
+	cout << "test";
 }
 
 bool ServerService::Start()
