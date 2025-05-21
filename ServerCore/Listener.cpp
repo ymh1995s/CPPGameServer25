@@ -34,7 +34,8 @@ bool Listener::StartAccept(ServerServiceRef service)
 		return false;
 
 	//GIocpCore.Register(this);
-	GIocpCore.Register(shared_from_this());
+	//GIocpCore.Register(shared_from_this());
+	if (_service->GetIocpCore()->Register(shared_from_this()) == false)
 
 	SetSockOpt(_socket, SOL_SOCKET, SO_REUSEADDR, true); // ReUseAddress
 

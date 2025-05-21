@@ -5,9 +5,6 @@
 	IocpCore
 ---------------*/
 
-// TEMP
-IocpCore GIocpCore;
-
 IocpCore::IocpCore()
 {
 	// 생성자에서 CP 생성
