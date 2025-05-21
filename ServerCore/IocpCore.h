@@ -39,9 +39,6 @@ private:
 	HANDLE		_iocpHandle; // CP를 가르키는 핸들이 됨
 };
 
-// TEMP 전역으로 사용 
-extern IocpCore GIocpCore;
-
 
 /*--------------
 	IocpEvent

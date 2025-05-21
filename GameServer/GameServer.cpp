@@ -31,13 +31,13 @@ int main()
 
 	service->Start();
 
-	for (int32 i = 0; i < 4; i++) // 코어개수 ~ (코어개수 * 1.5) 가 적당
+	for (int32 i = 0; i < 1; i++) // 코어개수 ~ (코어개수 * 1.5) 가 적당
 	{
 		GThreadManager->Launch([=]()
 			{
 				while (true)
 				{
-					GIocpCore.Dispatch();
+					service->GetIocpCore()->Dispatch();
 				}
 			});
 	}
