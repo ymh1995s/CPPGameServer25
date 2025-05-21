@@ -49,19 +49,22 @@ HANDLE Session::GetHandle()
 
 void Session::Send(SendBufferRef sendBuffer)
 {
+	if (IsConnected() == false)
+		return;
+
+	bool registerSend = false;
+
 	// 현재 RegisterSend가 걸리지 않은 상태라면, 걸어준다
-	WRITE_LOCK;
-
-	_sendQueue.push(sendBuffer);
-
-	// 아래 아토믹 함수의 의사코드 (설명용 주석)
-	/*if (_sendRegistered == false)
 	{
-		_sendRegistered = true;
-		RegisterSend();
-	}*/
-	
-	if (_sendRegistered.exchange(true) == false)
+		WRITE_LOCK;
+
+		_sendQueue.push(sendBuffer);
+
+		if (_sendRegistered.exchange(true) == false)
+			registerSend = true;
+	}
+
+	if (registerSend)
 		RegisterSend();
 }
 
@@ -304,4 +307,44 @@ void Session::HandleError(int32 errorCode)
 		cout << "Handle Error : " << errorCode << endl;
 		break;
 	}
+}
+
+/*-----------------
+	PacketSession
+------------------*/
+
+PacketSession::PacketSession()
+{
+}
+
+PacketSession::~PacketSession()
+{
+}
+
+// 사이즈 등을 속이는 패킷 변조에 주의 할 것
+// 그럼에도 불구하고 헤더사이즈 등은 필연적이기 때문에 보안과는 별개의 요소
+// [size(2)][id(2)][data....][size(2)][id(2)][data....]
+int32 PacketSession::OnRecv(BYTE* buffer, int32 len)
+{
+	int32 processLen = 0;
+
+	while (true)
+	{
+		int32 dataSize = len - processLen;
+		// 최소한 헤더는 파싱할 수 있어야 한다
+		if (dataSize < sizeof(PacketHeader))
+			break;
+
+		PacketHeader header = *(reinterpret_cast<PacketHeader*>(&buffer[processLen]));
+		// 헤더에 기록된 패킷 크기를 파싱할 수 있어야 한다
+		if (dataSize < header.size)
+			break;
+
+		// 패킷 조립 성공
+		OnRecvPacket(&buffer[processLen], header.size);
+
+		processLen += header.size;
+	}
+
+	return processLen;
 }

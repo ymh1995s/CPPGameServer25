@@ -89,3 +89,29 @@ private:
 	RecvEvent			_recvEvent; // 한 번만 선언하고 재사용 (낚시대)
 	SendEvent			_sendEvent; // 한 번만 선언하고 재사용
 };
+
+/*-----------------
+	PacketSession
+------------------*/
+
+// [size(2)][id(2)][data...] 꼴
+struct PacketHeader
+{
+	uint16 size;
+	uint16 id; // 프로토콜ID (ex. 1=로그인, 2=이동요청)
+};
+
+class PacketSession : public Session
+{
+public:
+	PacketSession();
+	virtual ~PacketSession();
+
+	PacketSessionRef	GetPacketSessionRef() { return static_pointer_cast<PacketSession>(shared_from_this()); }
+
+protected:
+	// 데이터를 받았다.
+	virtual int32		OnRecv(BYTE* buffer, int32 len) sealed;
+	// 데이터를 받았는데 패킷단위까지 조립했다.
+	virtual int32		OnRecvPacket(BYTE* buffer, int32 len) abstract;
+};
