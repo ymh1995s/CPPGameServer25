@@ -25,5 +25,6 @@ using namespace std;
 #pragma comment(lib, "ws2_32.lib")
 
 #include "SendBuffer.h"
+#include "Session.h"
 
 using namespace std;
