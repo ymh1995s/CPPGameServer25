@@ -63,6 +63,8 @@
     <ClInclude Include="SendBuffer.h">
       <Filter>Buffer</Filter>
     </ClInclude>
+    <ClInclude Include="BufferReader.h" />
+    <ClInclude Include="BufferWriter.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CorePch.cpp">
@@ -101,5 +103,7 @@
     <ClCompile Include="SendBuffer.cpp">
       <Filter>Buffer</Filter>
     </ClCompile>
+    <ClCompile Include="BufferReader.cpp" />
+    <ClCompile Include="BufferWriter.cpp" />
   </ItemGroup>
 </Project>
