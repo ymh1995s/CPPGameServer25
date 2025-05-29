@@ -15,14 +15,22 @@
     <ClCompile Include="pch.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="ClientPacketHandler.cpp" />
     <ClCompile Include="Protocol.pb.cc" />
+    <ClCompile Include="ServerPacketHandler.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Enum.pb.cc" />
+    <ClCompile Include="Struct.pb.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="ClientPacketHandler.h" />
     <ClInclude Include="Protocol.pb.h" />
+    <ClInclude Include="ServerPacketHandler.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Enum.pb.h" />
+    <ClInclude Include="Struct.pb.h" />
   </ItemGroup>
 </Project>
