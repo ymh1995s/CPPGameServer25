@@ -7,6 +7,9 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{37e6aaa6-0769-426b-aa67-d42e60cd791c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GameContents">
+      <UniqueIdentifier>{6755da19-f782-4e3f-ae93-f14e07a11885}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp">
@@ -21,8 +24,18 @@
     <ClCompile Include="GameSession.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="ServerPacketHandler.cpp" />
     <ClCompile Include="Protocol.pb.cc" />
+    <ClCompile Include="Room.cpp">
+      <Filter>GameContents</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>GameContents</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientPacketHandler.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="..\DummyClient\Enum.pb.cc" />
+    <ClCompile Include="..\DummyClient\Struct.pb.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -34,7 +47,17 @@
     <ClInclude Include="GameSession.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="ServerPacketHandler.h" />
     <ClInclude Include="Protocol.pb.h" />
+    <ClInclude Include="Room.h">
+      <Filter>GameContents</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>GameContents</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientPacketHandler.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DummyClient\Enum.pb.h" />
+    <ClInclude Include="..\DummyClient\Struct.pb.h" />
   </ItemGroup>
 </Project>
