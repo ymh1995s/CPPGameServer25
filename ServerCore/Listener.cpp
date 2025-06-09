@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Listener.h"
-#include "Socket.h"
+//#include "Socket.h"
+#include "SocketUtils.h"
 #include "Session.h"
 #include "IocpCore.h"
 #include "Service.h"
@@ -25,33 +26,28 @@ Listener::~Listener()
 //bool Listener::StartAccept(SOCKADDR_IN sockaddr)
 bool Listener::StartAccept(ServerServiceRef service)
 {
-	_socket = GSocketManager->CreateSocket();
-	if (_socket == INVALID_SOCKET)
-		return false;
-
 	_service = service;
 	if (_service == nullptr)
 		return false;
 
-	//GIocpCore.Register(this);
-	//GIocpCore.Register(shared_from_this());
+	_socket = SocketUtils::CreateSocket();
+	if (_socket == INVALID_SOCKET)
+		return false;
+
 	if (_service->GetIocpCore()->Register(shared_from_this()) == false)
+		return false;
 
-	SetSockOpt(_socket, SOL_SOCKET, SO_REUSEADDR, true); // ReUseAddress
+	if (SocketUtils::SetReuseAddress(_socket, true) == false)
+		return false;
 
-	// SetLinger
-	LINGER option;
-	option.l_onoff = 0;
-	option.l_linger = 0;
-	SetSockOpt(_socket, SOL_SOCKET, SO_LINGER, option);
+	if (SocketUtils::SetLinger(_socket, 0, 0) == false)
+		return false;
 
+	if (SocketUtils::Bind(_socket, _service->GetNetAddress()) == false)
+		return false;
 
-	// 네트워크 주소 바인딩
-	//GSocketManager->BindSocket(_socket,sockaddr);
-	GSocketManager->BindSocket(_socket, _service->GetNetAddress());
-
-	// 소켓을 수신 대기 상태로 설정
-	GSocketManager->Listen(_socket);
+	if (SocketUtils::Listen(_socket) == false)
+		return false;
 
 	// 수락할 연결의 개수만큼 AcceptEvent를 등록
 	const int32 acceptCount = 1;
@@ -101,7 +97,7 @@ void Listener::RegisterAccept(AcceptEvent* acceptEvent)
 	// ★★★ AcceptEx는 비동기 함수로써, 일단 접속을 대기하다가 
 	//        LPOVERLAPPED 구조체인 acceptEvent에 완료 결과가 담긴다.
 	// ★★★ acceptEvent는 IOCP 큐에 담기고, GetQueuedCompletionStatus()가 꺼내서 워커 스레드가 처리.
-	if (false == GSocketManager->AcceptEx(_socket, session->GetSocket(),
+	if (false == SocketUtils::AcceptEx(_socket, session->GetSocket(),
 		session->_recvBuffer.WritePos(), 0, sizeof(SOCKADDR_IN) + 16, sizeof(SOCKADDR_IN) + 16,
 		OUT & bytesReceived, static_cast<LPOVERLAPPED>(acceptEvent)))
 	{

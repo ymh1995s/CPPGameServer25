@@ -21,10 +21,11 @@ using namespace std;
 
 #include <winsock2.h>
 #include <mswsock.h>
-//#include <ws2tcpip.h>
+#include <ws2tcpip.h>
 #pragma comment(lib, "ws2_32.lib")
 
 #include "SendBuffer.h"
 #include "Session.h"
+#include "JobQueue.h"
 
 using namespace std;

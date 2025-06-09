@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "IocpCore.h"
+#include "NetAddress.h"
 
 class AcceptEvent;
 

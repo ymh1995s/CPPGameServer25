@@ -9,7 +9,7 @@
 	Service
 --------------*/
 
-Service::Service(ServiceType type, SOCKADDR_IN address, IocpCoreRef core,
+Service::Service(ServiceType type, NetAddress address, IocpCoreRef core,
 	SessionFactory factory, int32 maxSessionCount)
 	: _type(type), _netAddress(address), _iocpCore(core),
 	_sessionFactory(factory), _maxSessionCount(maxSessionCount)
@@ -64,7 +64,7 @@ void Service::ReleaseSession(SessionRef session)
 	ClientService
 ------------------*/
 
-ClientService::ClientService(SOCKADDR_IN targetAddress, IocpCoreRef core,
+ClientService::ClientService(NetAddress targetAddress, IocpCoreRef core,
 	SessionFactory factory, int32 maxSessionCount)
 	: Service(ServiceType::Client, targetAddress, core, factory, maxSessionCount)
 {
@@ -87,7 +87,7 @@ bool ClientService::Start()
 	return true;
 }
 
-ServerService::ServerService(SOCKADDR_IN address, IocpCoreRef core,
+ServerService::ServerService(NetAddress address, IocpCoreRef core,
 	SessionFactory factory, int32 maxSessionCount)
 	: Service(ServiceType::Server, address, core, factory, maxSessionCount)
 {
