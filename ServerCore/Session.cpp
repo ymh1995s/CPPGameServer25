@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Session.h"
 #include "Socket.h"
+#include "SocketUtils.h"
 #include "Service.h"
 #include "SendBuffer.h"
 
@@ -10,7 +11,7 @@
 
 Session::Session() : _recvBuffer(BUFFER_SIZE)
 {
-	_socket = GSocketManager->CreateSocket();
+	_socket = SocketUtils::CreateSocket();
 }
 
 Session::~Session()
@@ -99,19 +100,20 @@ bool Session::RegisterConnect()
 	if (GetService()->GetServiceType() != ServiceType::Client)
 		return false;
 
-
-	SetSockOpt(_socket, SOL_SOCKET, SO_REUSEADDR, true); // ReUseAddress
-
-	if (GSocketManager->BindSocketAnyAddress(_socket, 0/*남는거*/) == false)
+	if (SocketUtils::SetReuseAddress(_socket, true) == false)
 		return false;
+
+	if (SocketUtils::BindAnyAddress(_socket, 0/*남는거*/) == false)
+		return false;
+
 
 	_connectEvent.Init(); // IOCP EVENT
 	_connectEvent.owner = shared_from_this(); // ADD_REF
 
 	DWORD numOfBytes = 0;
-	SOCKADDR_IN sockAddr = GetService()->GetNetAddress();
+	SOCKADDR_IN sockAddr = GetService()->GetNetAddress().GetSockAddr();
 	// ★★★ 실제 클라이언트가 연결이 되는 부분 ConnectEx()
-	if (false == GSocketManager->ConnectEx(_socket, reinterpret_cast<SOCKADDR*>(&sockAddr),
+	if (false == SocketUtils::ConnectEx(_socket, reinterpret_cast<SOCKADDR*>(&sockAddr),
 		sizeof(sockAddr), nullptr, 0, &numOfBytes, &_connectEvent))
 	{
 		int32 errorCode = ::WSAGetLastError();
@@ -224,7 +226,7 @@ bool Session::RegisterDisconnect()
 	_disconnectEvent.Init();
 	_disconnectEvent.owner = shared_from_this(); // ADD_REF
 
-	if (false == GSocketManager->DisconnectEx(_socket, &_disconnectEvent, TF_REUSE_SOCKET, 0))
+	if (false == SocketUtils::DisconnectEx(_socket, &_disconnectEvent, TF_REUSE_SOCKET, 0))
 	{
 		int32 errorCode = ::WSAGetLastError();
 		if (errorCode != WSA_IO_PENDING)

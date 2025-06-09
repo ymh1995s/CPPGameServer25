@@ -3990,19 +3990,19 @@ class TestPrimitiveFieldsWithSameJsonName final :
   enum : int {
     kValStr1FieldNumber_1 = 1,
     kValStr1FieldNumber = 2,
-    kValInt321FieldNumber = 3,
-    kValInt321FieldNumber_4 = 4,
+    kValInt321FieldNumber_3 = 3,
+    kValInt321FieldNumber = 4,
     kValUint321FieldNumber_5 = 5,
     kValUint321FieldNumber = 6,
     kValInt641FieldNumber = 7,
     kValInt641FieldNumber_8 = 8,
     kValUint641FieldNumber_9 = 9,
     kValUint641FieldNumber = 10,
-    kValBool1FieldNumber_11 = 11,
-    kValBool1FieldNumber = 12,
+    kValBool1FieldNumber = 11,
+    kValBool1FieldNumber_12 = 12,
     kValFloat1FieldNumber_15 = 15,
-    kValDouble1FieldNumber_13 = 13,
-    kValDouble1FieldNumber = 14,
+    kValDouble1FieldNumber = 13,
+    kValDouble1FieldNumber_14 = 14,
     kValFloat1FieldNumber = 16,
   };
   // optional string val_str1 = 1;
@@ -4383,8 +4383,8 @@ class TestRepeatedFieldsWithSameJsonName final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kRepStr1FieldNumber_1 = 1,
-    kRepStr1FieldNumber = 2,
+    kRepStr1FieldNumber = 1,
+    kRepStr1FieldNumber_2 = 2,
   };
   // repeated string rep_str1 = 1;
   int rep_str1_size() const;

@@ -1,45 +1,70 @@
 ﻿#include "pch.h"
 #include <iostream>
-#include "CorePch.h"
-#include <atomic>
-#include <mutex>
-#include <windows.h>
-#include <future>
 #include "ThreadManager.h"
-
 #include "Service.h"
 #include "Session.h"
 #include "GameSession.h"
+#include "GameSessionManager.h"
+#include <tchar.h>
+#include "Job.h"
+#include "Protocol.pb.h"
+#include "Room.h"
+
+enum
+{
+	WORKER_TICK = 64
+};
+
+void DoWorkerJob(ServerServiceRef& service)
+{
+	while (true)
+	{
+		LEndTickCount = ::GetTickCount64() + WORKER_TICK;
+
+		// 네트워크 입출력 처리 -> 인게임 로직까지 (패킷 핸들러에 의해)
+		service->GetIocpCore()->Dispatch(10);
+
+		// 예약된 일감 처리
+		ThreadManager::DistributeReservedJobs();
+
+		// 글로벌 큐
+		ThreadManager::DoGlobalQueueWork();
+	}
+}
 
 int main()
 {
-	// 난 NetAddr 클래스 안 만들어서 대신 SOCKADDR 하나 생성했음
-	SOCKADDR_IN listenSock;
-	listenSock.sin_family = AF_INET;
-	listenSock.sin_addr.s_addr = htonl(0x7F000001); // 127.0.0.1
-	listenSock.sin_port = ::htons(7777);
-
-	//Listener listener;
-	//listener.StartAccept(listenSock);
+	//ServerPacketHandler::Init();
 
 	ServerServiceRef service = make_shared<ServerService>(
-		listenSock,
+		NetAddress(L"127.0.0.1", 7777),
 		make_shared<IocpCore>(),
-		[]() { return make_shared<GameSession>();  },
-		100
-	);
+		[=]() { return make_shared<GameSession>(); }, // TODO : SessionManager 등
+		100);
 
-	service->Start();
+	ASSERT_CRASH(service->Start());
 
-	for (int32 i = 0; i < 1; i++) // 코어개수 ~ (코어개수 * 1.5) 가 적당
+	for (int32 i = 0; i < 5; i++)
 	{
-		GThreadManager->Launch([=]()
+		GThreadManager->Launch([&service]()
 			{
-				while (true)
-				{
-					service->GetIocpCore()->Dispatch();
-				}
+				DoWorkerJob(service);
 			});
+	}
+
+	// Main Thread
+	DoWorkerJob(service);
+
+	//GRoom->DoAsync(&Room::UpdateTick);
+
+	while (true)
+	{
+		//Protocol::S_CHAT pkt;
+		//pkt.set_msg("HelloWorld");
+		//auto sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+
+		//GSessionManager.Broadcast(sendBuffer);
+		this_thread::sleep_for(0.1s);
 	}
 
 	GThreadManager->Join();

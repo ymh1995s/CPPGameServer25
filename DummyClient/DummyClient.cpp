@@ -3,7 +3,7 @@
 #include "Service.h"
 #include "Session.h"
 #include "SendBuffer.h"
-#include "ServerPacketHandler.h"
+#include "ClientPacketHandler.h"
 char sendData[] = "Hello World";
 
 class ServerSession : public PacketSession
@@ -17,7 +17,7 @@ public:
 	virtual void OnConnected() override
 	{
 		Protocol::C_LOGIN pkt;
-		auto sendBuffer = ServerPacketHandler::MakeSendBuffer(pkt);
+		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(pkt);
 		Send(sendBuffer);
 	}
 
@@ -27,7 +27,7 @@ public:
 		PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
 
 		// TODO : packetId 대역 체크
-		ServerPacketHandler::HandlePacket(session, buffer, len);
+		ClientPacketHandler::HandlePacket(session, buffer, len);
 	}
 
 	virtual void OnSend(int32 len) override
@@ -71,7 +71,7 @@ int main()
 
 	Protocol::C_CHAT chatPkt;
 	chatPkt.set_msg(u8"Hello World !");
-	auto sendBuffer = ServerPacketHandler::MakeSendBuffer(chatPkt);
+	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(chatPkt);
 
 	while (true)
 	{

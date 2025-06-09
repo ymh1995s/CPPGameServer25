@@ -16,6 +16,7 @@ public:
 	int32 Capacity() { return static_cast<int32>(_buffer.size()); } // 버퍼의 전체 용량을 반환
 
 	void CopyData(void* data, int32 len); // 버퍼에 복사
+	void Close(uint32 writeSize);
 
 private:
 	vector<BYTE>	_buffer; // 데이터를 저장할 실제 버퍼

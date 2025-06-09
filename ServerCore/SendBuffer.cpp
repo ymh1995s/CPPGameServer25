@@ -22,3 +22,8 @@ void SendBuffer::CopyData(void* data, int32 len)
 	::memcpy(_buffer.data(), data, len); // 데이터 복사
 	_writeSize = len; // 현재 작성된 데이터 크기를 갱신
 }
+
+void SendBuffer::Close(uint32 writeSize)
+{
+	_writeSize = writeSize;
+}

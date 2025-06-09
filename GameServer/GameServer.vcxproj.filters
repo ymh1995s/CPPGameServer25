@@ -10,54 +10,99 @@
     <Filter Include="GameContents">
       <UniqueIdentifier>{6755da19-f782-4e3f-ae93-f14e07a11885}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{8ff49b82-606f-4c02-a938-37fa359283c8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameServer.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="pch.cpp">
-      <Filter>Utils</Filter>
+    <ClCompile Include="..\DummyClient\Enum.pb.cc">
+      <Filter>Protocol</Filter>
     </ClCompile>
-    <ClCompile Include="GameSessionManager.cpp">
-      <Filter>Main</Filter>
+    <ClCompile Include="Protocol.pb.cc">
+      <Filter>Protocol</Filter>
     </ClCompile>
-    <ClCompile Include="GameSession.cpp">
-      <Filter>Main</Filter>
+    <ClCompile Include="..\DummyClient\Struct.pb.cc">
+      <Filter>Protocol</Filter>
     </ClCompile>
-    <ClCompile Include="Protocol.pb.cc" />
     <ClCompile Include="Room.cpp">
+      <Filter>GameContents</Filter>
+    </ClCompile>
+    <ClCompile Include="Creature.cpp">
+      <Filter>GameContents</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>GameContents</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
       <Filter>GameContents</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
       <Filter>GameContents</Filter>
     </ClCompile>
-    <ClCompile Include="ClientPacketHandler.cpp">
+    <ClCompile Include="ServerPacketHandler.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="..\DummyClient\Enum.pb.cc" />
-    <ClCompile Include="..\DummyClient\Struct.pb.cc" />
+    <ClCompile Include="GameSession.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSessionManager.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="pch.h">
-      <Filter>Utils</Filter>
+    <ClInclude Include="..\DummyClient\Enum.pb.h">
+      <Filter>Protocol</Filter>
     </ClInclude>
-    <ClInclude Include="GameSessionManager.h">
+    <ClInclude Include="Protocol.pb.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DummyClient\Struct.pb.h">
+      <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>GameContents</Filter>
+    </ClInclude>
+    <ClInclude Include="Room.h">
+      <Filter>GameContents</Filter>
+    </ClInclude>
+    <ClInclude Include="Creature.h">
+      <Filter>GameContents</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>GameContents</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>GameContents</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerPacketHandler.h">
       <Filter>Main</Filter>
     </ClInclude>
     <ClInclude Include="GameSession.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="Protocol.pb.h" />
-    <ClInclude Include="Room.h">
-      <Filter>GameContents</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>GameContents</Filter>
-    </ClInclude>
-    <ClInclude Include="ClientPacketHandler.h">
+    <ClInclude Include="GameSessionManager.h">
       <Filter>Main</Filter>
     </ClInclude>
-    <ClInclude Include="..\DummyClient\Enum.pb.h" />
-    <ClInclude Include="..\DummyClient\Struct.pb.h" />
+    <ClInclude Include="ObjectUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

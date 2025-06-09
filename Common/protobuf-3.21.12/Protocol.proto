@@ -11,27 +11,46 @@ message C_LOGIN
 
 message S_LOGIN
 {
-	bool success = 1;
-	repeated Player players = 2; // 아이디 발급 전
 }
 
 message C_ENTER_GAME
 {
-	uint64 playerIndex = 1;
 }
 
 message S_ENTER_GAME
 {
-	bool success = 1;
+}
+
+message C_LEAVE_GAME
+{
+
+}
+
+message S_LEAVE_GAME
+{
+
+}
+
+message S_SPAWN
+{
+}
+
+message S_DESPAWN
+{
+}
+
+message C_MOVE
+{
+}
+
+message S_MOVE
+{
 }
 
 message C_CHAT
 {
-	string msg = 1;
 }
 
 message S_CHAT
 {
-	uint64 playerId = 1;
-	string msg = 2;
 }
