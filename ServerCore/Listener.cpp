@@ -59,7 +59,7 @@ bool Listener::StartAccept(ServerServiceRef service)
 		RegisterAccept(acceptEvent); // 수락 등록
 	}
 
-	return false;
+	return true;
 }
 
 void Listener::CloseSocket()
