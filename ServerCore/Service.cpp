@@ -14,7 +14,7 @@ Service::Service(ServiceType type, NetAddress address, IocpCoreRef core,
 	: _type(type), _netAddress(address), _iocpCore(core),
 	_sessionFactory(factory), _maxSessionCount(maxSessionCount)
 {
-	cout << "test";
+
 }
 
 Service::~Service()
@@ -92,7 +92,6 @@ ServerService::ServerService(NetAddress address, IocpCoreRef core,
 	: Service(ServiceType::Server, address, core, factory, maxSessionCount)
 {
 
-	cout << "test";
 }
 
 bool ServerService::Start()
