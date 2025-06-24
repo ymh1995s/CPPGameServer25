@@ -7,55 +7,36 @@
 #include "ObjectUtils.h"
 #include "Player.h"
 #include "GameSession.h"
+#include "GameSessionManager.h"
 
 PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
 bool Handle_C_CLASS_CHOICE(PacketSessionRef& session, Protocol::C_ClassChoice& pkt)
 {
-
-    Protocol::C_ClassChoice enterPkt;
     cout << " 클래스 선택 패킷 수신!\n";
-    /*
-    C_ClassChoice pkt = packet as C_ClassChoice;
-    ClientSession clientSession = session as ClientSession;
 
-    // TODO : 오브젝트 매니저에 추가
-    clientSession.MyPlayer = ObjectManager.Instance.Add<Player>();
-    {
-        clientSession.MyPlayer.Info.Name = $"Player_{clientSession.MyPlayer.Info.PlayerId}";
-        clientSession.MyPlayer.Session = clientSession;
-    }
-    clientSession.MyPlayer.Info.StatInfo.ClassType = pkt.ClassType;
+    // 원래 GameSession에서 OnConnected 할 때 등록 할 때를 이렇게 변형한건데 문법 맞겠지?
+    // GSessionManager.Add(static_pointer_cast<GameSession>(shared_from_this()));
+    GSessionManager.Add(static_pointer_cast<GameSession>(session));
 
-    GameRoom room = RoomManager.Instance.Find((int)MapName.Tutorial);
-    if (room == null)
-    {
-        Console.WriteLine($"{(int)MapName.Tutorial}번 방이 존재하지 않습니다. 클라이언트 접속 종료");
-        clientSession.Disconnect();
-        return;
-    }
+    // C#에선 여기에 해당 클라이언트에 정보를 설정해주는데 여기 없어도 괜찮은가?
+    // 이름, 세션, 직업 정보 등 
+    // => 이름은 여기선 필요 없고
+    // => 세션은 CreatePlayer()에서
+    // => 직업 정보는 아래에 내가 추가로 코딩
 
-    room.Push(room.PlayerEnterGame, clientSession.MyPlayer, 0);
+    // 플레이어 생성 및 기본 정보 대입
+    PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session));
+    player->playerInfo->set_positionx(1.111f);
+    player->playerInfo->set_positiony(1.111f);
 
+    Protocol::PlayerStatInfo* playerStatInfo = new Protocol::PlayerStatInfo();
+    playerStatInfo->set_classtype(pkt.classtype());
+    player->playerInfo->set_allocated_statinfo(playerStatInfo);
 
+    // 방에 입장
+    GRoom->DoAsync(&Room::HandleEnterPlayer, player);
 
-	Protocol::S_EnterGame enterPkt;
-
-	for (int32 i = 0; i < 3; i++)
-	{
-		Protocol::ObjectInfo* player = enterPkt.add_players();
-		Protocol::PosInfo* posInfo = player->mutable_pos_info();
-		posInfo->set_x(Utils::GetRandom(0.f, 100.f));
-		posInfo->set_y(Utils::GetRandom(0.f, 100.f));
-		posInfo->set_z(Utils::GetRandom(0.f, 100.f));
-		posInfo->set_yaw(Utils::GetRandom(0.f, 45.f));
-	}
-
-	enterPkt.set_success(true);
-
-	SEND_PACKET(enterPkt);
-
-    */
 	return true;
 }
 

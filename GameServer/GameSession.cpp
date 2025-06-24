@@ -7,8 +7,6 @@
 
 void GameSession::OnConnected()
 {
-	 GSessionManager.Add(static_pointer_cast<GameSession>(shared_from_this()));
-
 	// TODO 여기서 넘버링같은거 해줄 수 없나?
 	cout<< "client ### is connected to the server. Here is server";
 
