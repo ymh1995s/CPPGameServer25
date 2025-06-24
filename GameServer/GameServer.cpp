@@ -52,6 +52,8 @@ int main()
 			});
 	}
 
+	cout << "Server Started Successful..\n";
+
 	// Main Thread
 	DoWorkerJob(service);
 
