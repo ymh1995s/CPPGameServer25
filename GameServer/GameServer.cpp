@@ -44,6 +44,8 @@ int main()
 
 	ASSERT_CRASH(service->Start());
 
+	GRoom->Init();
+
 	for (int32 i = 0; i < 5; i++)
 	{
 		GThreadManager->Launch([&service]()

@@ -6,5 +6,8 @@ class Monster : public Object
 public:
 	Monster();
 	virtual ~Monster();
+
+public:
+	Protocol::MonsterInfo* monsterInfo;
 };
 

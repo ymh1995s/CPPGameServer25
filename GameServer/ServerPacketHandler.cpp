@@ -17,12 +17,6 @@ bool Handle_C_CLASS_CHOICE(PacketSessionRef& session, Protocol::C_ClassChoice& p
     // GSessionManager.Add(static_pointer_cast<GameSession>(shared_from_this()));
     GSessionManager.Add(static_pointer_cast<GameSession>(session));
 
-    // C#에선 여기에 해당 클라이언트에 정보를 설정해주는데 여기 없어도 괜찮은가?
-    // 이름, 세션, 직업 정보 등 
-    // => 이름은 여기선 필요 없고
-    // => 세션은 CreatePlayer()에서
-    // => 직업 정보는 아래에 내가 추가로 코딩
-
     // 플레이어 생성 및 기본 정보 대입
     PlayerRef player = ObjectUtils::CreatePlayer(static_pointer_cast<GameSession>(session));
     player->playerInfo->set_positionx(1.111f);
@@ -35,7 +29,7 @@ bool Handle_C_CLASS_CHOICE(PacketSessionRef& session, Protocol::C_ClassChoice& p
     // 방에 입장
     GRoom->DoAsync(&Room::HandleEnterPlayer, player);
 
-    cout << "The Player " << player->playerInfo->playerid() << "Enter the Room\n";
+    cout << "The Player " << player->playerInfo->playerid() << " Enter the Room\n";
 	return true;
 }
 

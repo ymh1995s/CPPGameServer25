@@ -8,6 +8,7 @@ public:
 	virtual ~Room();
 
 public:
+	void Init();
 	bool EnterRoom(ObjectRef object);
 	bool LeaveRoom(ObjectRef object);
 
@@ -28,9 +29,22 @@ private:
 private:
 	void Broadcast(SendBufferRef sendBuffer, uint64 exceptId = 0);
 
+public:
+	// 몬스터 관련
+	void MonsterInit();
+	void MonsterUpdate();
+	bool AddMonsterObject(MonsterRef monster);
+	void MonsterEnterRoom(MonsterRef monster);
+	void LeaveMonster(int objectId);
+	void MonsterHitAndSetTarget(PlayerRef player, int monsterId);
+	bool IsPlayerInRoom(int id);
+	void RemoveMonster(int id);
+	void GameClear();
+
 private:
 	// 몬스터랑 플레이어 나눴던가? 확인
-	unordered_map<uint64, ObjectRef> _objects;
+	unordered_map<uint64, PlayerRef> _players;
+	unordered_map<uint64, MonsterRef> _monsters;
 };
 
 extern RoomRef GRoom;
