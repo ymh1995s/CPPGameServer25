@@ -9,12 +9,16 @@ RoomRef GRoom = make_shared<Room>();
 
 Room::Room()
 {
-
 }
 
 Room::~Room()
 {
 
+}
+
+void Room::Init()
+{
+	MonsterInit();
 }
 
 bool Room::EnterRoom(ObjectRef object)
@@ -54,7 +58,7 @@ bool Room::EnterRoom(ObjectRef object)
 	{
 		Protocol::S_PlayerSpawn spawnPkt;
 
-		for (auto& item : _objects)
+		for (auto& item : _players)
 		{
 			shared_ptr<Player> p = dynamic_pointer_cast<Player>(item.second);
 
@@ -73,6 +77,16 @@ bool Room::EnterRoom(ObjectRef object)
 		if (auto session = player->session.lock())
 			session->Send(sendBuffer);
 	}
+
+	// 현재 있는 map의 몬스터 동기화
+	Protocol::S_MonsterSpawn msPkt;
+	for (auto m : _monsters)
+	{
+		msPkt.add_monsterinfos()->CopyFrom(*m.second->monsterInfo);
+	}
+	SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(msPkt);
+	if (auto session = player->session.lock())
+		session->Send(sendBuffer);
 
 	return success;
 }
@@ -128,11 +142,11 @@ bool Room::HandleLeavePlayer(PlayerRef player)
 void Room::HandleMove(PlayerRef player, Protocol::C_PlayerMove pkt)
 {
 	const uint64 playerId = player->playerInfo->playerid();
-	if (_objects.find(playerId) == _objects.end())
+	if (_players.find(playerId) == _players.end())
 		return;
 
 	// 서버에서 관리하기 위해 데이터 반영
-	PlayerRef p = dynamic_pointer_cast<Player>(_objects[playerId]);
+	PlayerRef p = dynamic_pointer_cast<Player>(_players[playerId]);
 	p->playerInfo->set_positionx(pkt.positionx());
 	p->playerInfo->set_positiony(pkt.positiony());
 	p->playerInfo->set_creaturestate(pkt.state());
@@ -155,6 +169,9 @@ void Room::UpdateTick()
 	cout << "Update Room" << endl;
 
 	DoTimer(100, &Room::UpdateTick);
+
+	// 몬스터 업데이트
+	MonsterUpdate();
 }
 
 RoomRef Room::GetRoomRef()
@@ -171,7 +188,7 @@ bool Room::AddObject(ObjectRef object)
 	shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object);
 	if (player == nullptr) return false;
 
-	_objects.insert(make_pair(player->playerInfo->playerid(), object));
+	_players.insert(make_pair(player->playerInfo->playerid(), player));
 
 	object->room.store(GetRoomRef());
 
@@ -181,22 +198,22 @@ bool Room::AddObject(ObjectRef object)
 bool Room::RemoveObject(uint64 objectId)
 {
 	// 없다면 문제가 있다.
-	if (_objects.find(objectId) == _objects.end())
+	if (_players.find(objectId) == _players.end())
 		return false;
 
-	ObjectRef object = _objects[objectId];
+	ObjectRef object = _players[objectId];
 	PlayerRef player = dynamic_pointer_cast<Player>(object);
 	if (player)
 		player->room.store(weak_ptr<Room>());
 
-	_objects.erase(objectId);
+	_players.erase(objectId);
 
 	return true;
 }
 
 void Room::Broadcast(SendBufferRef sendBuffer, uint64 exceptId)
 {
-	for (auto& item : _objects)
+	for (auto& item : _players)
 	{
 		PlayerRef player = dynamic_pointer_cast<Player>(item.second);
 		if (player == nullptr)
@@ -208,3 +225,79 @@ void Room::Broadcast(SendBufferRef sendBuffer, uint64 exceptId)
 			session->Send(sendBuffer);
 	}
 }
+
+
+///////////////////////////////////////////
+///////////// 몬스터 //////////////////////
+///////////////////////////////////////////
+void Room::MonsterInit()
+{
+	int count = 5;
+	// 5마리 정도만 뿌려볼까
+	for (int i = 0; i < count; i++)
+	{
+		Protocol::S_MonsterSpawn* monsterSpawnPkt = new Protocol::S_MonsterSpawn();
+
+		MonsterRef monster = ObjectUtils::CreateMonster();
+		monster->monsterInfo->set_destinationy(10);
+		monster->monsterInfo->set_name(std::string(reinterpret_cast<const char*>(u8"달팽이")));
+
+		// 몬스터의 스펙을 임의로 설정
+		Protocol::MonsterStatInfo* ms = new Protocol::MonsterStatInfo();
+		ms->set_attackpower(1);
+		ms->set_hp(50);
+		ms->set_maxhp(50);
+		ms->set_speed(5);
+		ms->set_exp(10);
+		monster->monsterInfo->set_allocated_statinfo(ms);
+
+		MonsterEnterRoom(monster);
+	}
+}
+
+void Room::MonsterUpdate()
+{
+}
+
+bool Room::AddMonsterObject(MonsterRef monster)
+{
+	_monsters.insert(make_pair(monster->monsterInfo->monsterid(), monster));
+
+	monster->room.store(GetRoomRef());
+
+	return true;
+}
+
+
+void Room::MonsterEnterRoom(MonsterRef monster)
+{
+	AddMonsterObject(monster);
+
+	Protocol::S_MonsterSpawn mSpawnPkt;
+	mSpawnPkt.add_monsterinfos()->CopyFrom(*monster->monsterInfo);
+\
+	SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(mSpawnPkt);
+	Broadcast(sendBuffer, -1); // -1 : 제외 없이 모든 플레이어에게 보내겠다.
+}
+
+void Room::LeaveMonster(int objectId)
+{
+}
+
+void Room::MonsterHitAndSetTarget(PlayerRef player, int monsterId)
+{
+}
+
+bool Room::IsPlayerInRoom(int id)
+{
+	return false;
+}
+
+void Room::RemoveMonster(int id)
+{
+}
+
+void Room::GameClear()
+{
+}
+
