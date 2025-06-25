@@ -9,9 +9,6 @@ public:
 
 	bool IsPlayer() { return _isPlayer; }
 
-public:
-	//Protocol::ObjectInfo* objectInfo;
-	Protocol::PlayerInfo* playerInfo;
 
 public:
 	atomic<weak_ptr<Room>> room;
