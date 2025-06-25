@@ -20,6 +20,7 @@ Room::~Room()
 bool Room::EnterRoom(ObjectRef object)
 {
 	bool success = AddObject(object);
+	shared_ptr<Player> player = dynamic_pointer_cast<Player>(object);
 
 	// 입장 사실을 신입 플레이어에게 알린다
 	if (auto player = dynamic_pointer_cast<Player>(object))
@@ -28,7 +29,7 @@ bool Room::EnterRoom(ObjectRef object)
 		Protocol::S_EnterGame enterGamePkt;
 
 		Protocol::PlayerInfo* playerInfo = new Protocol::PlayerInfo();
-		playerInfo->CopyFrom(*object->playerInfo);
+		playerInfo->CopyFrom(*player->playerInfo);
 		enterGamePkt.set_allocated_playerinfo(playerInfo);
 
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(enterGamePkt);
@@ -42,10 +43,10 @@ bool Room::EnterRoom(ObjectRef object)
 		Protocol::S_PlayerSpawn spawnPkt;
 
 		Protocol::PlayerInfo* playerInfo = spawnPkt.add_playerinfos();
-		playerInfo->CopyFrom(*object->playerInfo);
+		playerInfo->CopyFrom(*player->playerInfo);
 
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(spawnPkt);
-		Broadcast(sendBuffer, object->playerInfo->playerid());
+		Broadcast(sendBuffer, player->playerInfo->playerid());
 	}
 
 	// 기존 입장한 플레이어 목록을 신입 플레이어한테 전송해준다
@@ -55,15 +56,17 @@ bool Room::EnterRoom(ObjectRef object)
 
 		for (auto& item : _objects)
 		{
+			shared_ptr<Player> p = dynamic_pointer_cast<Player>(item.second);
+
 			if (item.second->IsPlayer() == false)
 				continue;
 
 			// 자기 자신은 생략
-			if (player->playerInfo->playerid() == item.second->playerInfo->playerid())
+			if (player->playerInfo->playerid() == p->playerInfo->playerid())
 				continue;
 
 			Protocol::PlayerInfo* playerInfo = spawnPkt.add_playerinfos();
-			playerInfo->CopyFrom(*item.second->playerInfo);
+			playerInfo->CopyFrom(*p->playerInfo);
 		}
 
 		SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(spawnPkt);
@@ -79,7 +82,11 @@ bool Room::LeaveRoom(ObjectRef object)
 	if (object == nullptr)
 		return false;
 
-	const uint64 objectId = object->playerInfo->playerid();
+	shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object);
+	if (player == nullptr) return false;
+
+	uint64 objectId = player->playerInfo->playerid();
+
 	bool success = RemoveObject(objectId);
 
 	// 퇴장 사실을 퇴장하는 플레이어에게 알린다
@@ -161,7 +168,10 @@ bool Room::AddObject(ObjectRef object)
 	//if (_objects.find(object->objectInfo->object_id()) != _objects.end())
 	//	return false;
 
-	_objects.insert(make_pair(object->playerInfo->playerid(), object));
+	shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(object);
+	if (player == nullptr) return false;
+
+	_objects.insert(make_pair(player->playerInfo->playerid(), object));
 
 	object->room.store(GetRoomRef());
 
