@@ -45,6 +45,7 @@ int main()
 	ASSERT_CRASH(service->Start());
 
 	GRoom->Init();
+	GRoom->DoAsync(&Room::UpdateTick);
 
 	for (int32 i = 0; i < 5; i++)
 	{
@@ -59,7 +60,7 @@ int main()
 	// Main Thread
 	DoWorkerJob(service);
 
-	//GRoom->DoAsync(&Room::UpdateTick);
+	// Tip : 이하로는 DoWorkerJob에서 블로킹 되기 때문에 아래 코드는 실행 되지 않음
 
 	while (true)
 	{

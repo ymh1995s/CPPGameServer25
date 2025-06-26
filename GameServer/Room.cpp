@@ -166,8 +166,6 @@ void Room::HandleMove(PlayerRef player, Protocol::C_PlayerMove pkt)
 
 void Room::UpdateTick()
 {
-	cout << "Update Room" << endl;
-
 	DoTimer(100, &Room::UpdateTick);
 
 	// 몬스터 업데이트
@@ -239,7 +237,9 @@ void Room::MonsterInit()
 		Protocol::S_MonsterSpawn* monsterSpawnPkt = new Protocol::S_MonsterSpawn();
 
 		MonsterRef monster = ObjectUtils::CreateMonster();
-		monster->monsterInfo->set_destinationy(10);
+		cout << "Monster No."<<monster->id << " Spawned\r\n";
+		monster->monsterInfo->set_destinationx(0);
+		monster->monsterInfo->set_destinationy(0.75f);
 		monster->monsterInfo->set_name(std::string(reinterpret_cast<const char*>(u8"달팽이")));
 
 		// 몬스터의 스펙을 임의로 설정
@@ -247,7 +247,7 @@ void Room::MonsterInit()
 		ms->set_attackpower(1);
 		ms->set_hp(50);
 		ms->set_maxhp(50);
-		ms->set_speed(5);
+		ms->set_speed(0.1f);
 		ms->set_exp(10);
 		monster->monsterInfo->set_allocated_statinfo(ms);
 
@@ -257,6 +257,15 @@ void Room::MonsterInit()
 
 void Room::MonsterUpdate()
 {
+	for (auto m : _monsters)
+	{
+		m.second->Update();
+
+		// 음.. 얘넨 필요한가?
+		/*_normalMonsters[normalMonster.Id].Info = normalMonster.Info;
+		_normalMonsters[normalMonster.Id].Stat = normalMonster.Stat;*/
+	}
+
 }
 
 bool Room::AddMonsterObject(MonsterRef monster)

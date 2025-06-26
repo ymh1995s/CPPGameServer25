@@ -26,7 +26,7 @@ private:
 	bool AddObject(ObjectRef object);
 	bool RemoveObject(uint64 objectId);
 
-private:
+public:
 	void Broadcast(SendBufferRef sendBuffer, uint64 exceptId = 0);
 
 public:
