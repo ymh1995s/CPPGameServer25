@@ -38,9 +38,7 @@ public:
 	void MonsterEnterRoom(MonsterRef monster);
 	void LeaveMonster(int objectId);
 	void MonsterHitAndSetTarget(PlayerRef player, int monsterId, vector<int> damageAmounts);
-	bool IsPlayerInRoom(int id);
 	void RemoveMonster(int id);
-	void GameClear();
 
 public:
 	// 몬스터랑 플레이어 나눴던가? 확인
