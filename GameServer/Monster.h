@@ -39,7 +39,7 @@ public:
 	void UpdateInfo();
 	void BroadcastMove();
 	void Think();
-	void TakeDamage(int playerId, vector<int> damageAmounts);
+	void TakeDamage(int playerId, vector<int> damageAmounts, bool forceDamage=false);
 	void SetTarget(PlayerRef newTarget);
 
 public:

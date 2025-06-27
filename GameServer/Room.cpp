@@ -4,6 +4,7 @@
 #include "GameSession.h"
 #include "Monster.h"
 #include "ObjectUtils.h"
+#include <psapi.h>
 
 RoomRef GRoom = make_shared<Room>();
 
@@ -180,6 +181,10 @@ void Room::UpdateTick()
 {
 	DoTimer(100, &Room::UpdateTick);
 
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+	std::cout << "[MEM] WorkingSetSize: " << (pmc.WorkingSetSize / 1024 / 1024) << " MB\n";
+
 	// 몬스터 업데이트
 	MonsterUpdate();
 }
@@ -243,7 +248,7 @@ void Room::Broadcast(SendBufferRef sendBuffer, int64 exceptId)
 void Room::MonsterInit()
 {
 	// N마리 유지
-	int count = 5;
+	int count = 50;
 	for (int i = 0; i < count; i++)
 	{
 		MonsterSpawn();
@@ -255,7 +260,7 @@ void Room::MonsterSpawn()
 	Protocol::S_MonsterSpawn* monsterSpawnPkt = new Protocol::S_MonsterSpawn();
 
 	MonsterRef monster = ObjectUtils::CreateMonster();
-	cout << "Monster No." << monster->id << " Spawned\r\n";
+	//cout << "Monster No." << monster->id << " Spawned\r\n";
 	monster->monsterInfo->set_destinationx(0);
 	monster->monsterInfo->set_destinationy(0.75f);
 	monster->monsterInfo->set_name(std::string(reinterpret_cast<const char*>(u8"달팽이")));
@@ -270,6 +275,15 @@ void Room::MonsterSpawn()
 	monster->monsterInfo->set_allocated_statinfo(ms);
 
 	MonsterEnterRoom(monster);
+
+	DoTimer(200, &Room::MonsterStressTest, monster);
+}
+
+void Room::MonsterStressTest(MonsterRef monster)
+{
+	vector<int> v;
+	v.push_back(9999);
+	monster->TakeDamage(-1, v, true);
 }
 
 void Room::MonsterUpdate()
@@ -282,7 +296,6 @@ void Room::MonsterUpdate()
 		/*_normalMonsters[normalMonster.Id].Info = normalMonster.Info;
 		_normalMonsters[normalMonster.Id].Stat = normalMonster.Stat;*/
 	}
-
 }
 
 bool Room::AddMonsterObject(MonsterRef monster)

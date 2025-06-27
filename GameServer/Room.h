@@ -33,6 +33,7 @@ public:
 	// 몬스터 관련
 	void MonsterInit();
 	void MonsterSpawn();
+	void MonsterStressTest(MonsterRef monster);
 	void MonsterUpdate();
 	bool AddMonsterObject(MonsterRef monster);
 	void MonsterEnterRoom(MonsterRef monster);

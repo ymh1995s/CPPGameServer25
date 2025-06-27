@@ -13,7 +13,7 @@ Monster::Monster()
 
 Monster::~Monster()
 {
-	delete monsterInfo;
+	//delete monsterInfo;
 }
 
 void Monster::Update()
@@ -177,7 +177,7 @@ void Monster::Think()
     }
 }
 
-void Monster::TakeDamage(int playerId, vector<int> damageAmounts)
+void Monster::TakeDamage(int playerId, vector<int> damageAmounts, bool forceDamage)
 {
     int totalDamageAmount = 0;
     for(auto damageAmount : damageAmounts)
@@ -186,10 +186,45 @@ void Monster::TakeDamage(int playerId, vector<int> damageAmounts)
     Protocol::MonsterStatInfo* monsterStatInfo = monsterInfo->mutable_statinfo();
     monsterStatInfo->set_hp(monsterStatInfo->hp() - totalDamageAmount);
 
-    cout << "monster No." << id << " Hp Remained " << monsterStatInfo->hp() << "\r\n";
+    //cout << "monster No." << id << " Hp Remained " << monsterStatInfo->hp() << "\r\n";
 
+    if (forceDamage)
+    {
+        ////////////////////////////////////
+        ///////////Stress Test//////////////
+        ////////////////////////////////////
+        {
+            // 현재 룸에 존재하는 모든 클라이언트에게 알림
+            Protocol::S_HitMonster hitPacket;
+            hitPacket.set_monsterid(id);
+            hitPacket.set_playerid(playerId);
+            for (auto damageAmount : damageAmounts)
+            {
+                hitPacket.add_damages(damageAmount);
+            }
+            hitPacket.set_monstercurrenthp(monsterStatInfo->hp());
+
+            SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(hitPacket);
+            room.load().lock()->Broadcast(sendBuffer, -1);
+        }
+
+        {
+            // 현재 룸에 존재하는 모든 클라이언트에게 알림
+            Protocol::S_MonsterDespawn despawnPacket;
+            despawnPacket.add_monsterids(id);
+
+            SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(despawnPacket);
+            room.load().lock()->Broadcast(sendBuffer, -1);
+            room.load().lock()->RemoveMonster(id);
+        }
+
+        // 전임자가 전체 몬스터 / 맵의 몬스터 구분하느라 개별로 구현한 듯 Dic.(MonsterId, (roomId, zoneId))
+        //MonsterManager.Instance.MonsterDespawn(Id);
+
+        room.load().lock()->DoTimer(1000, &Room::MonsterSpawn);
+    }
     // 이하 노멀몬스터 상속 코드에서 가져옴
-    if (monsterStatInfo->hp() > 0)
+    else if (monsterStatInfo->hp() > 0)
     {
         UpdateStun();
 
@@ -251,7 +286,7 @@ void Monster::TakeDamage(int playerId, vector<int> damageAmounts)
         // 전임자가 전체 몬스터 / 맵의 몬스터 구분하느라 개별로 구현한 듯 Dic.(MonsterId, (roomId, zoneId))
         //MonsterManager.Instance.MonsterDespawn(Id);
 
-        room.load().lock()->DoTimer(1000, &Room::MonsterSpawn);
+        room.load().lock()->DoTimer(200, &Room::MonsterSpawn);
     }
 }
 
