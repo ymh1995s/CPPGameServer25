@@ -157,11 +157,7 @@ void Monster::BroadcastMove()
     smmPkt.set_isright(_isRight);
 
     SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(smmPkt);
-    std::shared_ptr<Room> roomPtr = room.load().lock();
-    if (roomPtr)
-    {
-        roomPtr->Broadcast(sendBuffer,-1);
-    }
+    room.load().lock()->Broadcast(sendBuffer, -1);
 }
 
 void Monster::Think()
@@ -179,4 +175,87 @@ void Monster::Think()
     {
         _currentState = MonsterState::Move;
     }
+}
+
+void Monster::TakeDamage(int playerId, vector<int> damageAmounts)
+{
+    int totalDamageAmount = 0;
+    for(auto damageAmount : damageAmounts)
+        totalDamageAmount += damageAmount;
+
+    Protocol::MonsterStatInfo* monsterStatInfo = monsterInfo->mutable_statinfo();
+    monsterStatInfo->set_hp(monsterStatInfo->hp() - totalDamageAmount);
+
+    cout << "monster No." << id << " Hp Remained " << monsterStatInfo->hp() << "\r\n";
+
+    // 이하 노멀몬스터 상속 코드에서 가져옴
+    if (monsterStatInfo->hp() > 0)
+    {
+        UpdateStun();
+
+        // 현재 룸에 존재하는 모든 클라이언트에게 알림
+        Protocol::S_HitMonster hitPacket;
+        hitPacket.set_monsterid(id);
+        hitPacket.set_playerid(playerId);
+        for (auto damageAmount : damageAmounts)
+        {
+            hitPacket.add_damages(damageAmount);
+        }
+        hitPacket.set_monstercurrenthp(monsterStatInfo->hp());;
+
+
+        SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(hitPacket);
+        room.load().lock()->Broadcast(sendBuffer, -1);
+    }
+    else if (monsterStatInfo->hp() <= 0)
+    {
+        UpdateDead();
+
+        // TODO? 아이템 스폰
+        //Room.ItemEnterGame(ObjectManager.Instance.Find(playerId), _destinationPos.X, _destinationPos.Y + 0.2f);
+
+        // 경험치 패킷 전송
+        // 직접 플레이어를 찾아서 보내는 코드를 작성하기 했지만 룸 단에서 함수를 하나 파주는게 좋을 듯?
+        Protocol::S_GetExp expPacket;
+        expPacket.set_playerids(playerId);
+        expPacket.set_exp(monsterStatInfo->exp());
+        SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(expPacket);
+        PlayerRef player = room.load().lock()->_players[playerId];
+        player->session.lock()->Send(sendBuffer);
+
+        {
+            // 현재 룸에 존재하는 모든 클라이언트에게 알림
+            Protocol::S_HitMonster hitPacket;
+            hitPacket.set_monsterid(id);
+            hitPacket.set_playerid(playerId);
+            for (auto damageAmount : damageAmounts)
+            {
+                hitPacket.add_damages(damageAmount);
+            }
+            hitPacket.set_monstercurrenthp(monsterStatInfo->hp());
+
+            SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(hitPacket);
+            room.load().lock()->Broadcast(sendBuffer, -1);
+        }
+
+        {
+            // 현재 룸에 존재하는 모든 클라이언트에게 알림
+            Protocol::S_MonsterDespawn despawnPacket;
+            despawnPacket.add_monsterids(id);
+
+            SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(despawnPacket);
+            room.load().lock()->Broadcast(sendBuffer, -1);
+            room.load().lock()->RemoveMonster(id);
+        }
+
+        // 전임자가 전체 몬스터 / 맵의 몬스터 구분하느라 개별로 구현한 듯 Dic.(MonsterId, (roomId, zoneId))
+        //MonsterManager.Instance.MonsterDespawn(Id);
+
+        room.load().lock()->DoTimer(1000, &Room::MonsterSpawn);
+    }
+}
+
+void Monster::SetTarget(PlayerRef newTarget)
+{
+    _target = newTarget;
 }

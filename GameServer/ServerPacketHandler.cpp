@@ -51,42 +51,71 @@ bool Handle_C_PLAYER_MOVE(PacketSessionRef& session, Protocol::C_PlayerMove& pkt
 	return true;
 }
 
+bool Handle_C_HIT_MONSTER(PacketSessionRef& session, Protocol::C_HitMonster& pkt)
+{
+    cout << "Player Hit Monster\n";
+
+    // auto 안 쓰기 연습
+    shared_ptr<GameSession> gameSession = static_pointer_cast<GameSession>(session);
+
+    PlayerRef player = gameSession->player.load();
+    if (player == nullptr)
+        return false;
+
+    RoomRef room = player->room.load().lock();
+    if (room == nullptr)
+        return false;
+
+    vector<int> damageAmounts;
+    for(auto playerAttackPower : pkt.playerattackpowers())
+        damageAmounts.push_back(playerAttackPower);
+
+    room->DoAsync(&Room::MonsterHitAndSetTarget, player, pkt.monsterid(), damageAmounts);
+
+    return true;
+}
+
+bool Handle_C_PLAYER_DAMAGED(PacketSessionRef& session, Protocol::C_PlayerDamaged& pkt)
+{
+    cout << "Player Damaged\r\n";
+    return false;
+}
+
+#pragma region 미구현
+
 bool Handle_C_PLAYER_DIE(PacketSessionRef& session, Protocol::C_PlayerDie& pkt)
 {
+    // 예정 없음
     return false;
 }
 
 bool Handle_C_PLAYER_SKILL(PacketSessionRef& session, Protocol::C_PlayerSkill& pkt)
 {
-    return false;
-}
-
-bool Handle_C_HIT_MONSTER(PacketSessionRef& session, Protocol::C_HitMonster& pkt)
-{
-    return false;
-}
-
-bool Handle_C_PLAYER_DAMAGED(PacketSessionRef& session, Protocol::C_PlayerDamaged& pkt)
-{
+    // 아마도 미사용
     return false;
 }
 
 bool Handle_C_CHANGE_MAP(PacketSessionRef& session, Protocol::C_ChangeMap& pkt)
 {
+    // 예정 없음
     return false;
 }
 
 bool Handle_C_BOSS_REGISTER(PacketSessionRef& session, Protocol::C_BossRegister& pkt)
 {
+    // 예정 없음
     return false;
 }
 
 bool Handle_C_BOSS_CANCLE(PacketSessionRef& session, Protocol::C_BossCancle& pkt)
 {
+    // 예정 없음
     return false;
 }
 
 bool Handle_C_LOOT_ITEM(PacketSessionRef& session, Protocol::C_LootItem& pkt)
 {
+    // 예정 없음
     return false;
 }
+#pragma endregion

@@ -39,6 +39,8 @@ public:
 	void UpdateInfo();
 	void BroadcastMove();
 	void Think();
+	void TakeDamage(int playerId, vector<int> damageAmounts);
+	void SetTarget(PlayerRef newTarget);
 
 public:
 	Protocol::MonsterInfo* monsterInfo;

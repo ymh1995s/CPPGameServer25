@@ -47,7 +47,7 @@ int main()
 	GRoom->Init();
 	GRoom->DoAsync(&Room::UpdateTick);
 
-	for (int32 i = 0; i < 5; i++)
+	for (int32 i = 0; i < 4; i++)
 	{
 		GThreadManager->Launch([&service]()
 			{
