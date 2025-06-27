@@ -13,7 +13,7 @@ Monster::Monster()
 
 Monster::~Monster()
 {
-	//delete monsterInfo;
+	delete monsterInfo;
 }
 
 void Monster::Update()
