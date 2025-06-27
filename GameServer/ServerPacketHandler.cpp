@@ -78,7 +78,20 @@ bool Handle_C_HIT_MONSTER(PacketSessionRef& session, Protocol::C_HitMonster& pkt
 bool Handle_C_PLAYER_DAMAGED(PacketSessionRef& session, Protocol::C_PlayerDamaged& pkt)
 {
     cout << "Player Damaged\r\n";
-    return false;
+    // 이 플레이어가 공격 받았다고 '알리기만' 한다.
+
+    shared_ptr<GameSession> gameSession = static_pointer_cast<GameSession>(session);
+
+    PlayerRef player = gameSession->player.load();
+    if (player == nullptr)
+        return false;
+
+    RoomRef room = player->room.load().lock();
+    if (room == nullptr)
+        return false;
+
+    room->DoAsync(&Room::HandleDamaged, player, pkt);
+    return true;
 }
 
 #pragma region 미구현

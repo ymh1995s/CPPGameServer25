@@ -14,7 +14,7 @@ public:
 
 	bool HandleEnterPlayer(PlayerRef player);
 	bool HandleLeavePlayer(PlayerRef player);
-
+	void HandleDamaged(PlayerRef player, Protocol::C_PlayerDamaged pkt);
 	void HandleMove(PlayerRef player, Protocol::C_PlayerMove pkt);
 
 public:

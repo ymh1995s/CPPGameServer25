@@ -139,6 +139,18 @@ bool Room::HandleLeavePlayer(PlayerRef player)
 	return LeaveRoom(player);
 }
 
+void Room::HandleDamaged(PlayerRef player, Protocol::C_PlayerDamaged pkt)
+{
+	if (player==nullptr)
+		return;
+
+	Protocol::S_PlayerDamaged resPkt;
+	resPkt.set_playerid(player->id);
+	resPkt.set_damage(pkt.damage());
+	SendBufferRef sendBuffer = ServerPacketHandler::MakeSendBuffer(resPkt);
+	Broadcast(sendBuffer);
+}
+
 void Room::HandleMove(PlayerRef player, Protocol::C_PlayerMove pkt)
 {
 	const uint64 playerId = player->playerInfo->playerid();
