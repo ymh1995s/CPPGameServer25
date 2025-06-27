@@ -209,7 +209,7 @@ bool Room::RemoveObject(uint64 objectId)
 	return true;
 }
 
-void Room::Broadcast(SendBufferRef sendBuffer, uint64 exceptId)
+void Room::Broadcast(SendBufferRef sendBuffer, int64 exceptId)
 {
 	for (auto& item : _players)
 	{
@@ -230,29 +230,34 @@ void Room::Broadcast(SendBufferRef sendBuffer, uint64 exceptId)
 ///////////////////////////////////////////
 void Room::MonsterInit()
 {
+	// N마리 유지
 	int count = 5;
-	// 5마리 정도만 뿌려볼까
 	for (int i = 0; i < count; i++)
 	{
-		Protocol::S_MonsterSpawn* monsterSpawnPkt = new Protocol::S_MonsterSpawn();
-
-		MonsterRef monster = ObjectUtils::CreateMonster();
-		cout << "Monster No."<<monster->id << " Spawned\r\n";
-		monster->monsterInfo->set_destinationx(0);
-		monster->monsterInfo->set_destinationy(0.75f);
-		monster->monsterInfo->set_name(std::string(reinterpret_cast<const char*>(u8"달팽이")));
-
-		// 몬스터의 스펙을 임의로 설정
-		Protocol::MonsterStatInfo* ms = new Protocol::MonsterStatInfo();
-		ms->set_attackpower(1);
-		ms->set_hp(50);
-		ms->set_maxhp(50);
-		ms->set_speed(0.1f);
-		ms->set_exp(10);
-		monster->monsterInfo->set_allocated_statinfo(ms);
-
-		MonsterEnterRoom(monster);
+		MonsterSpawn();
 	}
+}
+
+void Room::MonsterSpawn()
+{
+	Protocol::S_MonsterSpawn* monsterSpawnPkt = new Protocol::S_MonsterSpawn();
+
+	MonsterRef monster = ObjectUtils::CreateMonster();
+	cout << "Monster No." << monster->id << " Spawned\r\n";
+	monster->monsterInfo->set_destinationx(0);
+	monster->monsterInfo->set_destinationy(0.75f);
+	monster->monsterInfo->set_name(std::string(reinterpret_cast<const char*>(u8"달팽이")));
+
+	// 몬스터의 스펙을 임의로 설정
+	Protocol::MonsterStatInfo* ms = new Protocol::MonsterStatInfo();
+	ms->set_attackpower(5);
+	ms->set_hp(50);
+	ms->set_maxhp(50);
+	ms->set_speed(0.05f);
+	ms->set_exp(10);
+	monster->monsterInfo->set_allocated_statinfo(ms);
+
+	MonsterEnterRoom(monster);
 }
 
 void Room::MonsterUpdate()
@@ -293,8 +298,22 @@ void Room::LeaveMonster(int objectId)
 {
 }
 
-void Room::MonsterHitAndSetTarget(PlayerRef player, int monsterId)
+void Room::MonsterHitAndSetTarget(PlayerRef player, int monsterId, vector<int> damageAmounts)
 {
+	MonsterRef monster = nullptr;
+	auto it = _monsters.find(monsterId);
+	if (it != _monsters.end())
+		monster = it->second;
+
+	if (monster)
+	{
+		monster->SetTarget(player);
+		monster->TakeDamage(player->id, damageAmounts);
+	}
+	else
+	{
+		cout<<"YMH : 몬스터 타게팅 실패. 해당 몬스터를 찾지 못했습니다(서버 로직 오류)\r\n";
+	}
 }
 
 bool Room::IsPlayerInRoom(int id)
