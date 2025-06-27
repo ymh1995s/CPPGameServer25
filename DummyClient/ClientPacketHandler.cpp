@@ -6,40 +6,102 @@ PacketHandlerFunc GPacketHandler[UINT16_MAX];
 
 // 직접 컨텐츠 작업자
 
-bool Handle_INVALID(PacketSessionRef& session, BYTE* buffer, int32 len)
+bool Handle_S_CONNECTED(PacketSessionRef& session, Protocol::S_Connected& pkt)
 {
-	PacketHeader* header = reinterpret_cast<PacketHeader*>(buffer);
-	// TODO : Log
-	return false;
-}
-
-bool Handle_S_LOGIN(PacketSessionRef& session, Protocol::S_LOGIN& pkt)
-{
-	if (pkt.success() == false)
-		return true;
-
-	if (pkt.players().size() == 0)
-	{
-		// 캐릭터 생성창
-	}
-
-	// 입장 UI 버튼 눌러서 게임 입장
-	Protocol::C_ENTER_GAME enterGamePkt;
-	enterGamePkt.set_playerindex(0); // 첫번째 캐릭터로 입장
-	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(enterGamePkt);
-	session->Send(sendBuffer);
-
 	return true;
 }
 
-bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_ENTER_GAME& pkt)
+bool Handle_S_ENTER_GAME(PacketSessionRef& session, Protocol::S_EnterGame& pkt)
 {
-	// TODO
 	return true;
 }
 
-bool Handle_S_CHAT(PacketSessionRef& session, Protocol::S_CHAT& pkt)
+bool Handle_S_PLAYER_SPAWN(PacketSessionRef& session, Protocol::S_PlayerSpawn& pkt)
 {
-	std::cout << pkt.msg() << endl;
+	return true;
+}
+
+bool Handle_S_MONSTER_SPAWN(PacketSessionRef& session, Protocol::S_MonsterSpawn& pkt)
+{
+	return true;
+}
+
+bool Handle_S_PLAYER_MOVE(PacketSessionRef& session, Protocol::S_PlayerMove& pkt)
+{
+	return true;
+}
+
+bool Handle_S_MONSTER_MOVE(PacketSessionRef& session, Protocol::S_MonsterMove& pkt)
+{
+	return true;
+}
+
+bool Handle_S_LEAVE_GAME(PacketSessionRef& session, Protocol::S_LeaveGame& pkt)
+{
+	return true;
+}
+
+bool Handle_S_PLAYER_DESPAWN(PacketSessionRef& session, Protocol::S_PlayerDespawn& pkt)
+{
+	return true;
+}
+
+bool Handle_S_MONSTER_DESPAWN(PacketSessionRef& session, Protocol::S_MonsterDespawn& pkt)
+{
+	return true;
+}
+
+bool Handle_S_ITEM_SPAWN(PacketSessionRef& session, Protocol::S_ItemSpawn& pkt)
+{
+	return true;
+}
+
+bool Handle_S_PLAYER_SKILL(PacketSessionRef& session, Protocol::S_PlayerSkill& pkt)
+{
+	return true;
+}
+
+bool Handle_S_MONSTER_SKILL(PacketSessionRef& session, Protocol::S_MonsterSkill& pkt)
+{
+	return true;
+}
+
+bool Handle_S_HIT_MONSTER(PacketSessionRef& session, Protocol::S_HitMonster& pkt)
+{
+	return true;
+}
+
+bool Handle_S_PLAYER_DAMAGED(PacketSessionRef& session, Protocol::S_PlayerDamaged& pkt)
+{
+	return true;
+}
+
+bool Handle_S_BOSS_REGISTER_DENY(PacketSessionRef& session, Protocol::S_BossRegisterDeny& pkt)
+{
+	return true;
+}
+
+bool Handle_S_BOSS_WAITING(PacketSessionRef& session, Protocol::S_BossWaiting& pkt)
+{
+	return true;
+}
+
+bool Handle_S_GAME_CLEAR(PacketSessionRef& session, Protocol::S_GameClear& pkt)
+{
+	return true;
+}
+
+bool Handle_S_GET_EXP(PacketSessionRef& session, Protocol::S_GetExp& pkt)
+{
+	return true;
+}
+
+bool Handle_S_LOOT_ITEM(PacketSessionRef& session, Protocol::S_LootItem& pkt)
+{
+	return true;
+}
+
+bool Handle_S_ITEM_DESPAWN(PacketSessionRef& session, Protocol::S_ItemDespawn& pkt)
+{
 	return true;
 }

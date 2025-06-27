@@ -4,7 +4,8 @@
 #include "Session.h"
 #include "SendBuffer.h"
 #include "ClientPacketHandler.h"
-char sendData[] = "Hello World";
+#include "Protocol.pb.h"
+#include <random>
 
 class ServerSession : public PacketSession
 {
@@ -16,7 +17,8 @@ public:
 
 	virtual void OnConnected() override
 	{
-		Protocol::C_LOGIN pkt;
+		Protocol::C_ClassChoice pkt;
+		pkt.set_classtype(static_cast<Protocol::ClassType>(1));
 		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(pkt);
 		Send(sendBuffer);
 	}
@@ -43,6 +45,8 @@ public:
 
 int main()
 {
+	ClientPacketHandler::Init();
+
 	this_thread::sleep_for(1s);
 
 	SOCKADDR_IN sock;
@@ -58,7 +62,7 @@ int main()
 
 	ASSERT_CRASH(service->Start());
 
-	for (int32 i = 0; i < 2; i++)
+	for (int32 i = 0; i < 1; i++)
 	{
 		GThreadManager->Launch([=]()
 			{
@@ -69,14 +73,18 @@ int main()
 			});
 	}
 
-	Protocol::C_CHAT chatPkt;
-	chatPkt.set_msg(u8"Hello World !");
-	auto sendBuffer = ClientPacketHandler::MakeSendBuffer(chatPkt);
+	Protocol::C_PlayerMove movePkt;
+
+	std::mt19937 rng(std::random_device{}());
+	std::uniform_real_distribution<float> dist(-5.0f, 5.0f); // -5.0 ~ 5.0 사이
 
 	while (true)
 	{
+		auto sendBuffer = ClientPacketHandler::MakeSendBuffer(movePkt);
+		movePkt.set_positionx(dist(rng));
 		service->Broadcast(sendBuffer);
-		this_thread::sleep_for(1s);
+
+		this_thread::sleep_for(100ms);
 	}
 
 

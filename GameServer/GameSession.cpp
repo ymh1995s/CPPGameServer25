@@ -10,7 +10,7 @@
 void GameSession::OnConnected()
 {
 	// TODO 여기서 넘버링같은거 해줄 수 없나?
-	cout<< "new Player Entered. Here is server\r\n";
+	cout<< "new Player Connected. Here is server\r\n";
 
 	// 근데 이 패킷 목적 자체가 직업 선택 창 띄우려고 하는건데 의미가 없지 않은가?
 	Protocol::S_Connected connectedPkt;
