@@ -328,16 +328,7 @@ void Room::MonsterHitAndSetTarget(PlayerRef player, int monsterId, vector<int> d
 	}
 }
 
-bool Room::IsPlayerInRoom(int id)
-{
-	return false;
-}
-
 void Room::RemoveMonster(int id)
 {
+	_monsters.erase(id);
 }
-
-void Room::GameClear()
-{
-}
-
