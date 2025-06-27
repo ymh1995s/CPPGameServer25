@@ -339,7 +339,7 @@ int32 PacketSession::OnRecv(BYTE* buffer, int32 len)
 
 		PacketHeader header = *(reinterpret_cast<PacketHeader*>(&buffer[processLen]));
 		// 헤더에 기록된 패킷 크기를 파싱할 수 있어야 한다
-		if (dataSize < header.size)
+		if (dataSize < header.size) 
 			break;
 
 		// 패킷 조립 성공
