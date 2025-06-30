@@ -1,12 +1,12 @@
 # C++ IOCP 서버
 
-핵심 코드는 [[코어 폴더]](https://github.com/ymh1995s/CPPServer25/tree/main/GameServer/ServerCore), [[컨텐츠 폴더]](https://github.com/ymh1995s/CPPServer25/tree/main/GameServer/GameServer)에서 확인할 수 있습니다.
+핵심 코드는 [[코어 폴더]](https://github.com/ymh1995s/CPPGameServer25/tree/main/ServerCore), [[컨텐츠 폴더]](https://github.com/ymh1995s/CPPGameServer25/tree/main/GameServer)에서 확인할 수 있습니다.
 
 ## 개요
-IOCP 서버를 구축하고 더미 환경 테스트
+메이플 라이크(C# 게임 서버)의 핵심 기능을 C++ IOCP 서버로 포팅
 
 ## 개발 기간
-2024.12 ~ 2025.02 (3개월) 
+2025.04 ~ 2025.06 (3개월) 
 
 ## 역할
 1인 기획 & 개발
