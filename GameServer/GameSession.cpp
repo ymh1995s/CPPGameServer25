@@ -24,11 +24,8 @@ void GameSession::OnDisconnected()
 		return;
 
 	std::shared_ptr<Player> p = player.load();
-	RoomRef room = p->room.load().lock();
-	if (room == nullptr)
-		return;
 
-	room->HandleLeavePlayer(player);
+	GRoom->DoAsync(&Room::HandleLeavePlayer, p);
 
 	GSessionManager.Remove(static_pointer_cast<GameSession>(shared_from_this()));
 }
